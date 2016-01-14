@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -37,6 +38,7 @@ public class RefreshListView extends RelativeLayout {
     private OnRefreshListener onRefreshListener;
     private boolean isLoading = false;
     private List<String> a;
+    float downY;
 
     public RefreshListView(Context context) {
         super(context);
@@ -147,7 +149,6 @@ public class RefreshListView extends RelativeLayout {
                 if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
                     View lastVisibleItemView = listView.getChildAt(listView.getChildCount() - 1);
                     if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == listView.getHeight()) {
-                        isLoading = true;
                         if (onRefreshListener != null && isLoading) {
                             onRefreshListener.onPullUpToRefresh();
                         }
@@ -157,6 +158,29 @@ public class RefreshListView extends RelativeLayout {
             }
         });
     }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        switch (ev.getAction()) {
+
+            case MotionEvent.ACTION_DOWN:
+                downY = ev.getY();
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if (ev.getY() - downY < 0) {
+                    isLoading = true;
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                break;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
 
     public ListView getListView() {
         return listView;
